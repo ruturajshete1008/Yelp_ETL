@@ -9,18 +9,10 @@
     <script src="main.js"></script>
 </head>
 <body>
-    <div class="wrap">
-            <div class="search">
-                <input type="text" class="searchTerm" placeholder="What are you looking for?">
-                <button type="submit" class="searchButton">
-                    <i class="fa fa-search"></i>
-                </button>
-            </div>
-            </div>
     <h1>Welcome to the bridging the gap between yelp and twitter!</h1>
     <h2>Here are the available routes</h2>
-    {% for city in cities %}
-    <a href="/api/v1.0/business_data/{{city}}"><p>{{city}}</p></a>
-    {%endfor%}
+    <pre><code>{{json}}</code></pre>
+
+
 </body>
 </html>

@@ -1,11 +1,7 @@
 from flask import Flask, render_template, jsonify
 import pymongo
 import pandas as pd
-import json
-from bson import json_util
-import json
-from bson import ObjectId
-from pprint import pprint
+import twitter_scrape
 
 
 app = Flask(__name__)
@@ -17,6 +13,17 @@ client = pymongo.MongoClient(conn)
 db = client.Yelp_ETL
 collection = db.businesses
 
+
+def serialize(array):
+    """
+    Changes MongoDB ID to string to be able to serialize as JSON.
+    """
+    serialized_list =[]
+    for doc in array:
+        doc['_id'] = doc['_id'].__str__()   
+        serialized_list.append(doc)
+    return serialized_list
+
 @app.route("/")
 def welcome():
     cities = collection.distinct('city')[0:9]
@@ -26,42 +33,25 @@ def welcome():
 @app.route("/api/v1.0/business_data/<city>")
 def city_data(city):
     businesses_city = collection.find({'city':city})
-    serialized_list =[]
-    for doc in businesses_city:
-        doc['_id'] = doc['_id'].__str__()   
-        serialized_list.append(doc)
 
-    return jsonify(serialized_list)
+    return jsonify(serialize(businesses_city))
 
 @app.route("/api/v1.0/business_data/<city>/<business_name>")
 def biz_name(city,business_name):
-    entry = collection.find_one({'city': city, 'name': business_name})
-    entry['_id'] = entry['_id'].__str__()
-    return jsonify(entry)
+    entry = collection.find({'city':city, 'name': business_name})
+    
+    if  entry == []:
+        return jsonify({"error" : "Business name not found. Search terms must be titlecased and contain proper spacing. ('Subway' instead of 'subway')"}) ,404
+    else:
+        return jsonify(serialize(entry))
+        
+@app.route("/api/v1.0/business_data/<city>/<business_name>/tweets")
+def tweets(city, business_name):
+    entry = collection.find({'city':city, 'name': business_name})
+    screen_name = entry[0]['twitter_handle']
+    tweets = twitter_scrape.get_tweets(screen_name)
+    return jsonify({"tweets" : tweets})
 
-
-# @app.route("/api/v1.0/business_data")
-# def business_data():
-#     """
-#     Return the business twitter and yelp data as json
-#     """
-
-#     return jsonify(business_data)
-
-
-
-# @app.route("/api/v1.0/business_data/<business_name>")
-# def business_name(business_name):
-#     """Fetch the business whose name matches the path variable supplied by the user, or a 404 if not."""
-
-#     canonicalized = business_name.replace(" ", "").lower()
-#     for character in business_data:
-#         search_term = character["name"].replace(" ", "").lower()
-
-#         if search_term == canonicalized:
-#             return jsonify(character)
-
-#     return jsonify({"error": f"Character with real_name {real_name} not found."}), 404
 
 
 if __name__ == "__main__":
