@@ -39,18 +39,24 @@ def city_data(city):
 @app.route("/api/v1.0/business_data/<city>/<business_name>")
 def biz_name(city,business_name):
     entry = collection.find({'city':city, 'name': business_name})
-    
-    if  entry == []:
-        return jsonify({"error" : "Business name not found. Search terms must be titlecased and contain proper spacing. ('Subway' instead of 'subway')"}) ,404
+    item_counts = collection.count_documents({'city':city, 'name': business_name})
+
+    if  item_counts == 0:
+        return jsonify({"error" : "Business name not found. Search terms must be titlecased and contain proper spacing. ('Subway' instead of 'subway')"}), 404
     else:
         return jsonify(serialize(entry))
         
 @app.route("/api/v1.0/business_data/<city>/<business_name>/tweets")
 def tweets(city, business_name):
     entry = collection.find({'city':city, 'name': business_name})
-    screen_name = entry[0]['twitter_handle']
-    tweets = twitter_scrape.get_tweets(screen_name)
-    return jsonify({"tweets" : tweets})
+    item_counts = collection.count_documents({'city':city, 'name': business_name})
+
+    if  item_counts ==0:
+        return jsonify({"error" : "Business name not found. Search terms must be titlecased and contain proper spacing. ('Subway' instead of 'subway')"}) ,404
+    else:
+        screen_name = entry[0]['twitter_handle']
+        tweets = twitter_scrape.get_tweets(screen_name)
+        return jsonify({"tweets" : tweets})
 
 
 
