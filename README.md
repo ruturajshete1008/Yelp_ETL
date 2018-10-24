@@ -1,7 +1,7 @@
 # Yelp_ETL
 
 ## Project Description:
-##Bridging the gap between yelp and twitter data: 
+## Bridging the gap between yelp and twitter data: 
 * The goal of this application is to create API which can query data collected from yelp and twitter for a particular business.
 * we can pull business reviews and ratings from both sources.
 * This application returns business reviews and tweets in the form of json.
@@ -10,6 +10,9 @@
 * We also want to analyze relationship between yelp rating and twitter tweets content and count.
 
 ## Project Team:
+Rafael Santa Cruz
+Ruturaj Shete
+Mehrun Nisha
 
 ## Tools used:
  MongoDB, Twitter API, Kaggle Yelp Data Files, Flask, PyMongo, HTML, CSS
